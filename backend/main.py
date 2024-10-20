@@ -32,12 +32,26 @@ def get_players():
         data = response.json()
         teams = data.get("teams", [])
         
-        if teams:
-            team = teams[0]
+        players = []
+        all_teams = set()
+        all_positions = set()
+
+        # Extract players, teams, and positions from all teams
+        for team in teams:
             team_name = team.get("name")
-            players = team.get("squad", [])
-            return {"team": team_name, "players": players}
-        else:
-            return {"error": "No teams found"}
+            all_teams.add(team_name)
+            for player in team.get("squad", []):
+                players.append({
+                    "name": player.get("name"), 
+                    "position": player.get("position"),
+                    "team": team_name
+                })
+                all_positions.add(player.get("position"))
+
+        return {
+            "players": players,
+            "teams": sorted(list(all_teams)),
+            "positions": sorted(list(all_positions))
+        }
     else:
         return {"error": "Failed to fetch data"}
